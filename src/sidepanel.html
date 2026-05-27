@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auto Save Design</title>
+    <link rel="stylesheet" href="popup.css" />
+    <link rel="stylesheet" href="sidepanel.css" />
+    <style>
+      /* Bảng so sánh phương pháp xóa nền */
+      .compare-table {
+        width: 100%; border-collapse: collapse;
+        font-size: 11px; margin-top: 10px;
+      }
+      .compare-table th {
+        background: var(--surface, #f3f4f6);
+        color: var(--subtle, #6b7280);
+        font-weight: 700; text-align: left;
+        padding: 5px 8px; border-bottom: 1px solid var(--border, #e5e7eb);
+      }
+      .compare-table td {
+        padding: 5px 8px;
+        border-bottom: 1px solid var(--border, #e5e7eb);
+        vertical-align: middle;
+      }
+      .compare-table tr:last-child td { border-bottom: none; }
+      .stars { color: #f59e0b; letter-spacing: -1px; }
+      .badge {
+        display: inline-block; padding: 1px 6px; border-radius: 10px;
+        font-size: 10px; font-weight: 700;
+      }
+      .badge-free   { background: #d1fae5; color: #065f46; }
+      .badge-local  { background: #dbeafe; color: #1e40af; }
+      .badge-api    { background: #ede9fe; color: #5b21b6; }
+
+      /* HF settings */
+      #hf-settings { margin-top: 10px; }
+      .hf-link { font-size: 11px; color: var(--subtle); }
+      .hf-link a { color: var(--accent, #6366f1); }
+      #hf-ping { font-size: 11px; margin-top: 4px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Auto Save Design</h1>
+      <p class="subtle">Click chuột phải trên ảnh → "Auto Save Design".</p>
+    </header>
+
+    <section class="card">
+      <label for="subfolder" class="label">Subfolder (dưới Downloads)</label>
+      <input id="subfolder" type="text" placeholder="auto-save-design"
+             autocomplete="off" spellcheck="false" />
+      <p class="hint">File lưu vào <code id="path-preview">Downloads/…</code></p>
+    </section>
+
+    <section class="card">
+      <label for="bg-method" class="label">Phương pháp xóa nền</label>
+      <select id="bg-method">
+        <option value="chroma">🎨 Chroma-key  (nhanh, offline, chất lượng thấp)</option>
+        <option value="hf">🤖 HF RMBG-1.4  (AI miễn phí, cần HF token)</option>
+        <option value="rembg">🐍 rembg local  (AI tốt nhất, cần Python)</option>
+      </select>
+
+      <!-- So sánh phương pháp -->
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Phương pháp</th>
+            <th>Chất lượng</th>
+            <th>Yêu cầu</th>
+            <th>Loại</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Chroma-key</td>
+            <td><span class="stars">★★</span><span style="color:#ddd">★★★</span></td>
+            <td>Không cần gì</td>
+            <td><span class="badge badge-free">Offline</span></td>
+          </tr>
+          <tr>
+            <td>HF RMBG-1.4</td>
+            <td><span class="stars">★★★★★</span></td>
+            <td>HF token miễn phí</td>
+            <td><span class="badge badge-api">API</span></td>
+          </tr>
+          <tr>
+            <td>rembg</td>
+            <td><span class="stars">★★★★★</span></td>
+            <td>Python local server</td>
+            <td><span class="badge badge-local">Local AI</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- HF settings -->
+      <div id="hf-settings" hidden>
+        <label for="hf-token" class="label" style="margin-top:12px">
+          Hugging Face Token
+        </label>
+        <input id="hf-token" type="password" placeholder="hf_xxxxxxxxxxxx"
+               autocomplete="off" spellcheck="false" />
+        <div class="row buttons" style="margin-top:6px">
+          <button id="hf-test" class="ghost">Test token</button>
+          <span id="hf-ping"></span>
+        </div>
+        <p class="hf-link">
+          Lấy token miễn phí: <a href="https://huggingface.co/settings/tokens" target="_blank">
+          huggingface.co/settings/tokens</a>
+          (đăng ký free → New token → Read)
+        </p>
+      </div>
+
+      <!-- rembg settings -->
+      <div id="rembg-settings" hidden>
+        <label for="rembg-url" class="label" style="margin-top:12px">URL server rembg</label>
+        <input id="rembg-url" type="text" placeholder="http://localhost:7000"
+               autocomplete="off" spellcheck="false" />
+        <div class="row buttons">
+          <button id="rembg-test" class="ghost">Test kết nối</button>
+          <span id="rembg-ping"></span>
+        </div>
+        <p class="hint">Cài: <code>pip install rembg[cli]</code> → <code>rembg s</code></p>
+      </div>
+
+      <p class="hint" id="method-hint"></p>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <span class="label">Canvas</span>
+        <span class="value">4200 × 4800 px (14" × 16" @ 300 DPI)</span>
+      </div>
+      <div class="row" style="margin-bottom:0">
+        <span class="label">Trigger</span>
+        <span class="value">Chuột phải → chọn vùng → lưu tự động</span>
+      </div>
+    </section>
+
+    <section id="status" class="status" hidden>
+      <strong id="status-title"></strong>
+      <span id="status-message"></span>
+    </section>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>

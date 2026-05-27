@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auto Save Design</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Auto Save Design</h1>
+      <p class="subtle">Click chuột phải trên ảnh → "Auto Save Design".</p>
+    </header>
+
+    <section class="card">
+      <label for="subfolder" class="label">Subfolder (dưới Downloads)</label>
+      <input
+        id="subfolder"
+        type="text"
+        placeholder="auto-save-design"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <p class="hint">
+        File lưu vào <code id="path-preview">Downloads/…</code>. Bỏ trống để
+        lưu thẳng vào Downloads.
+      </p>
+    </section>
+
+    <section class="card">
+      <label for="bg-method" class="label">Phương pháp xóa nền</label>
+      <select id="bg-method">
+        <option value="chroma">Chroma-key (nhanh, không cần cài đặt)</option>
+        <option value="rembg">rembg — AI (cần Python server local)</option>
+      </select>
+
+      <div id="rembg-settings" hidden>
+        <label for="rembg-url" class="label" style="margin-top:12px">URL server rembg</label>
+        <input
+          id="rembg-url"
+          type="text"
+          placeholder="http://localhost:7000"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="row buttons">
+          <button id="rembg-test" class="ghost">Test kết nối</button>
+          <span id="rembg-ping"></span>
+        </div>
+      </div>
+
+      <p class="hint" id="method-hint"></p>
+    </section>
+
+    <section class="card info-card">
+      <div class="row">
+        <span class="label">Canvas</span>
+        <span class="value">4200 × 4800 px (14" × 16" @ 300 DPI)</span>
+      </div>
+    </section>
+
+    <section id="status" class="status" hidden>
+      <strong id="status-title"></strong>
+      <span id="status-message"></span>
+    </section>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

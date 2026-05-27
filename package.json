@@ -1,0 +1,23 @@
+{
+  "name": "auto-save-design",
+  "version": "0.1.0",
+  "description": "Chrome extension: right-click any product image to remove its background and export a 4200x4800 print-ready PNG.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@imgly/background-removal": "^1.5.5",
+    "@upscalerjs/esrgan-slim": "^1.0.0-beta.18",
+    "@tensorflow/tfjs": "~4.11.0",
+    "idb": "^8.0.0",
+    "upscaler": "^1.0.0-beta.19"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "rimraf": "^6.0.1"
+  }
+}

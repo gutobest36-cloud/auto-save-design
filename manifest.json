@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Auto Save Design",
+  "version": "0.1.0",
+  "description": "Right-click any product image to remove its background and export a 4200x4800 print-ready PNG.",
+  "permissions": [
+    "contextMenus",
+    "offscreen",
+    "storage",
+    "downloads",
+    "notifications",
+    "scripting",
+    "activeTab",
+    "sidePanel"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Auto Save Design"
+  },
+  "side_panel": {
+    "default_path": "src/sidepanel.html"
+  },
+  "sandbox": {
+    "pages": ["src/sandbox.html"]
+  },
+  "content_security_policy": {
+    "sandbox": "sandbox allow-scripts allow-forms allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https:; worker-src 'self' blob: data:; child-src 'self' blob: data:; connect-src * data: blob:; img-src * data: blob:; style-src 'self' 'unsafe-inline';"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/contextHelper.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["vendor/*", "src/sandbox.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
