@@ -71,9 +71,10 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       hfToken        = "",
       walmartEnabled = false,
       walmartUrl     = "http://localhost:5000",
+      designTone     = "auto",
     } = await chrome.storage.local.get([
       "subfolder", "bgMethod", "rembgUrl", "hfToken",
-      "walmartEnabled", "walmartUrl",
+      "walmartEnabled", "walmartUrl", "designTone",
     ]);
 
     await ensureOffscreen();
@@ -85,7 +86,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       payload: {
         url: srcUrl, pageUrl, title, imageDataUrl,
         subfolder, bgMethod, rembgUrl, hfToken,
-        walmartEnabled, walmartUrl,
+        walmartEnabled, walmartUrl, designTone,
       },
     }).catch(() => {});
   } catch (err) {

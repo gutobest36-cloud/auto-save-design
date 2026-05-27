@@ -27,6 +27,7 @@ const walmartUrlRow     = document.getElementById("walmart-url-row");
 const walmartUrlInput   = document.getElementById("walmart-url");
 const walmartTestBtn    = document.getElementById("walmart-test");
 const walmartPing       = document.getElementById("walmart-ping");
+const designToneSelect  = document.getElementById("design-tone");
 
 const HINTS = {
   chroma: "Xóa nền theo màu góc ảnh. Nhanh, offline, phù hợp nền đơn sắc.",
@@ -39,7 +40,7 @@ init().catch(console.error);
 async function init() {
   const stored = await chrome.storage.local.get([
     SUBFOLDER_KEY, "bgMethod", "rembgUrl", "hfToken",
-    "walmartEnabled", "walmartUrl",
+    "walmartEnabled", "walmartUrl", "designTone",
   ]);
   subfolderInput.value = stored[SUBFOLDER_KEY] ?? DEFAULT_SUBFOLDER;
   updatePreview(subfolderInput.value);
@@ -55,6 +56,7 @@ async function init() {
   walmartEnabledChk.checked = wEnabled;
   walmartUrlInput.value     = stored.walmartUrl ?? "http://localhost:5000";
   walmartUrlRow.hidden      = !wEnabled;
+  designToneSelect.value    = stored.designTone ?? "auto";
 }
 
 // ── Subfolder ──
@@ -156,6 +158,10 @@ walmartTestBtn.addEventListener("click", async () => {
     walmartPing.textContent = "✗ Không kết nối — Flask đang chạy chưa?";
     walmartPing.style.color = "var(--err)";
   }
+});
+
+designToneSelect.addEventListener("change", async () => {
+  await chrome.storage.local.set({ designTone: designToneSelect.value });
 });
 
 // ── Messages từ offscreen ──

@@ -150,7 +150,17 @@
           <button id="walmart-test" class="ghost">Test kết nối</button>
           <span id="walmart-ping" style="font-size:11px"></span>
         </div>
-        <p class="hint">Sau khi save PNG → tự động gen listing và thêm vào queue.
+        <div style="margin-top:10px">
+          <label for="design-tone" class="label" style="margin-bottom:4px">Kiểu thiết kế</label>
+          <select id="design-tone">
+            <option value="auto">🔍 Tự động phát hiện</option>
+            <option value="dark">⬛ Tối → dùng áo màu sáng</option>
+            <option value="light">⬜ Sáng → dùng áo màu tối</option>
+            <option value="both">🎨 Dùng tất cả màu áo</option>
+          </select>
+          <p class="hint" style="margin-top:4px">Thiết kế tối phù hợp áo trắng/sáng; thiết kế sáng phù hợp áo đen/tối.</p>
+        </div>
+        <p class="hint" style="margin-top:8px">Sau khi save PNG → tự động gen listing và thêm vào queue.
           <a href="http://localhost:5000" target="_blank" style="color:var(--accent)">Mở localhost:5000</a>
         </p>
       </div>

@@ -26,6 +26,7 @@ async function handleProcess({
   hfToken,
   walmartEnabled,
   walmartUrl,
+  designTone,
 }) {
   if (!imageDataUrl || !imageDataUrl.startsWith("data:")) {
     throw new Error("[v4 offscreen] Missing imageDataUrl from background");
@@ -73,18 +74,19 @@ async function handleProcess({
 
   // ── Walmart Tool integration — fire-and-forget, không block luồng chính ──
   if (walmartEnabled && walmartUrl) {
-    sendToWalmartTool(cutoutBlob, title, saved, walmartUrl).catch(() => {});
+    sendToWalmartTool(cutoutBlob, title, saved, walmartUrl, designTone).catch(() => {});
   }
 }
 
 // ─────────────────────────────────────────────
 // Walmart Tool integration
 // ─────────────────────────────────────────────
-async function sendToWalmartTool(blob, title, filename, walmartUrl) {
+async function sendToWalmartTool(blob, title, filename, walmartUrl, designTone) {
   status("🛒 Đang gửi sang Walmart tool...");
   const form = new FormData();
   form.append("file", new File([blob], filename, { type: "image/png" }));
   form.append("title", title || "");
+  form.append("design_tone", designTone || "auto");
 
   let res;
   try {
@@ -112,7 +114,9 @@ async function sendToWalmartTool(blob, title, filename, walmartUrl) {
   }
 
   if (json.queued) {
-    status(`🛒 Walmart: "${json.keyword}" đang xử lý — mở localhost:5000 để theo dõi`);
+    const toneLabel = { dark: "áo sáng", light: "áo tối", both: "tất cả màu" };
+    const hint = json.detected_tone ? ` [${toneLabel[json.detected_tone] ?? json.detected_tone}]` : "";
+    status(`🛒 Walmart: "${json.keyword}"${hint} đang xử lý — mở localhost:5000 để theo dõi`);
   } else if (json.error) {
     status(`⚠️ Walmart tool lỗi: ${json.error}`);
   }
