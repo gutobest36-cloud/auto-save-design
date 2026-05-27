@@ -137,6 +137,25 @@
       </div>
     </section>
 
+    <section class="card" id="walmart-card">
+      <label class="label">⚡ Kết nối Walmart Tool</label>
+      <label class="row" style="gap:8px; cursor:pointer; margin-bottom:0; align-items:center">
+        <input type="checkbox" id="walmart-enabled" style="width:auto; margin:0; flex-shrink:0">
+        <span style="font-size:12px">Tự động gửi sang Walmart tool</span>
+      </label>
+      <div id="walmart-url-row" hidden style="margin-top:10px">
+        <input id="walmart-url" type="text" placeholder="http://localhost:5000"
+               autocomplete="off" spellcheck="false" />
+        <div class="row buttons" style="margin-top:6px">
+          <button id="walmart-test" class="ghost">Test kết nối</button>
+          <span id="walmart-ping" style="font-size:11px"></span>
+        </div>
+        <p class="hint">Sau khi save PNG → tự động gen listing và thêm vào queue.
+          <a href="http://localhost:5000" target="_blank" style="color:var(--accent)">Mở localhost:5000</a>
+        </p>
+      </div>
+    </section>
+
     <section id="status" class="status" hidden>
       <strong id="status-title"></strong>
       <span id="status-message"></span>

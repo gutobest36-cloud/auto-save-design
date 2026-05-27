@@ -24,6 +24,8 @@ async function handleProcess({
   bgMethod,
   rembgUrl,
   hfToken,
+  walmartEnabled,
+  walmartUrl,
 }) {
   if (!imageDataUrl || !imageDataUrl.startsWith("data:")) {
     throw new Error("[v4 offscreen] Missing imageDataUrl from background");
@@ -68,31 +70,71 @@ async function handleProcess({
   const saved = await saveBlob(cutoutBlob, filename, subfolder);
 
   report({ ok: true, filename: saved });
+
+  // ── Walmart Tool integration — fire-and-forget, không block luồng chính ──
+  if (walmartEnabled && walmartUrl) {
+    sendToWalmartTool(cutoutBlob, title, saved, walmartUrl).catch(() => {});
+  }
 }
 
+// ─────────────────────────────────────────────
+// Walmart Tool integration
+// ─────────────────────────────────────────────
+async function sendToWalmartTool(blob, title, filename, walmartUrl) {
+  status("🛒 Đang gửi sang Walmart tool...");
+  const form = new FormData();
+  form.append("file", new File([blob], filename, { type: "image/png" }));
+  form.append("title", title || "");
+
+  let res;
+  try {
+    res = await fetch(`${walmartUrl}/api/auto-ingest`, {
+      method: "POST",
+      body: form,
+      signal: AbortSignal.timeout(10000), // chỉ chờ ACK, Flask trả về ngay
+    });
+  } catch (err) {
+    status(`⚠️ Walmart tool: lỗi kết nối — ${err?.message ?? err}`);
+    return;
+  }
+
+  if (!res.ok) {
+    status(`⚠️ Walmart tool: server trả lỗi ${res.status}`);
+    return;
+  }
+
+  let json;
+  try {
+    json = await res.json();
+  } catch {
+    status("⚠️ Walmart tool: phản hồi không hợp lệ");
+    return;
+  }
+
+  if (json.queued) {
+    status(`🛒 Walmart: "${json.keyword}" đang xử lý — mở localhost:5000 để theo dõi`);
+  } else if (json.error) {
+    status(`⚠️ Walmart tool lỗi: ${json.error}`);
+  }
+}
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
 function status(message) {
-  try {
-    chrome.runtime.sendMessage({
-      target: "background",
-      type: "STATUS",
-      payload: { message },
-    });
-  } catch {
-    /* popup may be closed */
-  }
-  // Also broadcast to popup directly.
-  try {
-    chrome.runtime.sendMessage({
-      target: "popup",
-      type: "STATUS",
-      payload: { message },
-    });
-  } catch {
-    /* noop */
-  }
+  chrome.runtime.sendMessage({
+    target: "background",
+    type: "STATUS",
+    payload: { message },
+  }).catch(() => {});
+  chrome.runtime.sendMessage({
+    target: "popup",
+    type: "STATUS",
+    payload: { message },
+  }).catch(() => {});
 }
 
 function report(payload) {
-  chrome.runtime.sendMessage({ target: "background", type: "RESULT", payload });
-  chrome.runtime.sendMessage({ target: "popup", type: "RESULT", payload });
+  chrome.runtime.sendMessage({ target: "background", type: "RESULT", payload }).catch(() => {});
+  chrome.runtime.sendMessage({ target: "popup",      type: "RESULT", payload }).catch(() => {});
 }

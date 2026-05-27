@@ -21,6 +21,13 @@ const rembgTestBtn     = document.getElementById("rembg-test");
 const rembgPing        = document.getElementById("rembg-ping");
 const methodHint       = document.getElementById("method-hint");
 
+// ── Walmart Tool ──
+const walmartEnabledChk = document.getElementById("walmart-enabled");
+const walmartUrlRow     = document.getElementById("walmart-url-row");
+const walmartUrlInput   = document.getElementById("walmart-url");
+const walmartTestBtn    = document.getElementById("walmart-test");
+const walmartPing       = document.getElementById("walmart-ping");
+
 const HINTS = {
   chroma: "Xóa nền theo màu góc ảnh. Nhanh, offline, phù hợp nền đơn sắc.",
   hf:     "AI RMBG-1.4 chạy trên Hugging Face. Chất lượng cao, miễn phí với HF token.",
@@ -32,6 +39,7 @@ init().catch(console.error);
 async function init() {
   const stored = await chrome.storage.local.get([
     SUBFOLDER_KEY, "bgMethod", "rembgUrl", "hfToken",
+    "walmartEnabled", "walmartUrl",
   ]);
   subfolderInput.value = stored[SUBFOLDER_KEY] ?? DEFAULT_SUBFOLDER;
   updatePreview(subfolderInput.value);
@@ -41,6 +49,12 @@ async function init() {
   rembgUrlInput.value  = stored.rembgUrl ?? "http://localhost:7000";
   hfTokenInput.value   = stored.hfToken  ?? "";
   applyMethodUi(method);
+
+  // Walmart
+  const wEnabled = stored.walmartEnabled ?? false;
+  walmartEnabledChk.checked = wEnabled;
+  walmartUrlInput.value     = stored.walmartUrl ?? "http://localhost:5000";
+  walmartUrlRow.hidden      = !wEnabled;
 }
 
 // ── Subfolder ──
@@ -107,6 +121,40 @@ rembgTestBtn.addEventListener("click", async () => {
   } catch {
     rembgPing.textContent = "Lỗi kết nối";
     rembgPing.style.color = "var(--err)";
+  }
+});
+
+// ── Walmart Tool ──
+walmartEnabledChk.addEventListener("change", async () => {
+  const checked = walmartEnabledChk.checked;
+  walmartUrlRow.hidden = !checked;
+  await chrome.storage.local.set({ walmartEnabled: checked });
+});
+
+walmartUrlInput.addEventListener("input", async () => {
+  walmartPing.textContent = "";
+  await chrome.storage.local.set({
+    walmartUrl: walmartUrlInput.value.trim() || "http://localhost:5000",
+  });
+});
+
+walmartTestBtn.addEventListener("click", async () => {
+  walmartPing.textContent = "Đang kiểm tra…";
+  walmartPing.style.color = "var(--subtle)";
+  const url = walmartUrlInput.value.trim() || "http://localhost:5000";
+  try {
+    const res  = await fetch(`${url}/api/ping`, { signal: AbortSignal.timeout(4000) });
+    const json = await res.json();
+    if (json.ok) {
+      walmartPing.textContent = "✓ Đã kết nối";
+      walmartPing.style.color = "var(--ok)";
+    } else {
+      walmartPing.textContent = "✗ Server không phản hồi đúng";
+      walmartPing.style.color = "var(--err)";
+    }
+  } catch {
+    walmartPing.textContent = "✗ Không kết nối — Flask đang chạy chưa?";
+    walmartPing.style.color = "var(--err)";
   }
 });
 

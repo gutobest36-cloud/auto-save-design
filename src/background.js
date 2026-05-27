@@ -65,11 +65,16 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     sendStatus("🎨 Đang xử lý ảnh…");
     const title = await titlePromise;
     const {
-      subfolder = "auto-save-design",
-      bgMethod  = "chroma",
-      rembgUrl  = "http://localhost:7000",
-      hfToken   = "",
-    } = await chrome.storage.local.get(["subfolder", "bgMethod", "rembgUrl", "hfToken"]);
+      subfolder      = "auto-save-design",
+      bgMethod       = "chroma",
+      rembgUrl       = "http://localhost:7000",
+      hfToken        = "",
+      walmartEnabled = false,
+      walmartUrl     = "http://localhost:5000",
+    } = await chrome.storage.local.get([
+      "subfolder", "bgMethod", "rembgUrl", "hfToken",
+      "walmartEnabled", "walmartUrl",
+    ]);
 
     await ensureOffscreen();
     // Small delay to ensure offscreen message listener is ready
@@ -80,6 +85,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       payload: {
         url: srcUrl, pageUrl, title, imageDataUrl,
         subfolder, bgMethod, rembgUrl, hfToken,
+        walmartEnabled, walmartUrl,
       },
     }).catch(() => {});
   } catch (err) {
