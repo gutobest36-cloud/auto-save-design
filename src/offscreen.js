@@ -74,7 +74,9 @@ async function handleProcess({
 
   // ── Walmart Tool integration — fire-and-forget, không block luồng chính ──
   if (walmartEnabled && walmartUrl) {
-    sendToWalmartTool(cutoutBlob, title, saved, walmartUrl, designTone).catch(() => {});
+    sendToWalmartTool(cutoutBlob, title, saved, walmartUrl, designTone).catch((err) => {
+      status(`⚠️ Walmart tool: lỗi ngoài dự kiến — ${err?.message ?? err}`);
+    });
   }
 }
 
